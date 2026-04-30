@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OptiMed CoCM Smart Screening Tool</title>
+  <style>
+    :root {
+      --primary: #1f5f6f;
+      --primary-dark: #174855;
+      --accent: #d8a24a;
+      --light: #f5f8f9;
+      --border: #d8e1e4;
+      --text: #1f2933;
+      --muted: #5b6770;
+      --green: #2e7d32;
+      --yellow: #b7791f;
+      --red: #b42318;
+      --blue: #245b9f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #eef3f5;
+      color: var(--text);
+      line-height: 1.45;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      padding: 28px;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.12);
+      margin-bottom: 18px;
+    }
+    .header h1 { margin: 0 0 8px; font-size: 30px; }
+    .header p { margin: 0; font-size: 16px; opacity: .95; max-width: 850px; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.5fr .85fr;
+      gap: 18px;
+      align-items: start;
+    }
+    .card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px;
+      margin-bottom: 16px;
+      box-shadow: 0 5px 18px rgba(0,0,0,.05);
+    }
+    .card h2 {
+      margin: 0 0 6px;
+      color: var(--primary-dark);
+      font-size: 21px;
+    }
+    .card .sub {
+      color: var(--muted);
+      margin-bottom: 14px;
+      font-size: 14px;
+    }
+    .question {
+      border-top: 1px solid #edf1f2;
+      padding: 13px 0;
+    }
+    .question:first-of-type { border-top: none; }
+    .question-title { font-weight: bold; margin-bottom: 8px; }
+    .options {
+      display: grid;
+      gap: 7px;
+    }
+    label.option {
+      display: flex;
+      gap: 9px;
+      align-items: flex-start;
+      padding: 9px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: .15s;
+      background: #fff;
+    }
+    label.option:hover { border-color: var(--primary); background: #f8fbfc; }
+    input[type="radio"], input[type="checkbox"] { margin-top: 2px; transform: scale(1.08); }
+    .checkbox-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .sticky {
+      position: sticky;
+      top: 16px;
+    }
+    .score-box {
+      background: white;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 30px rgba(0,0,0,.1);
+      overflow: hidden;
+    }
+    .score-top {
+      padding: 20px;
+      background: var(--primary-dark);
+      color: white;
+    }
+    .score-top h2 { margin: 0; font-size: 20px; }
+    .score-body { padding: 20px; }
+    .big-score {
+      font-size: 42px;
+      font-weight: 800;
+      margin: 4px 0;
+      color: var(--primary-dark);
+    }
+    .small-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid #edf1f2;
+      padding: 8px 0;
+      font-size: 14px;
+    }
+    .tier {
+      margin: 16px 0 10px;
+      padding: 14px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .tier.green { background: #eaf6ec; color: var(--green); border: 1px solid #bdddc2; }
+    .tier.yellow { background: #fff7e6; color: var(--yellow); border: 1px solid #efd399; }
+    .tier.red { background: #fff0ee; color: var(--red); border: 1px solid #f0b8b2; }
+    .tier.blue { background: #eef5ff; color: var(--blue); border: 1px solid #b8d0f0; }
+    .recommendation {
+      background: #f7fafb;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px;
+      font-size: 14px;
+      color: #29343b;
+    }
+    .flags {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .flag-item { margin: 5px 0; }
+    button {
+      width: 100%;
+      border: none;
+      border-radius: 11px;
+      padding: 12px 14px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 12px;
+      font-size: 15px;
+    }
+    .btn-primary { background: var(--accent); color: #1f2933; }
+    .btn-secondary { background: #e8eef1; color: #22313a; }
+    .note {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 12px;
+    }
+    .footer-note {
+      margin-top: 18px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+      .sticky { position: static; }
+      .checkbox-grid { grid-template-columns: 1fr; }
+      .header h1 { font-size: 24px; }
+    }
+    @media print {
+      body { background: white; }
+      .container { max-width: none; padding: 0; }
+      .grid { display: block; }
+      button { display: none; }
+      .sticky { position: static; }
+      .card, .score-box, .header { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>OptiMed CoCM Smart Screening Tool</h1>
+      <p>A structured screening and risk-stratification tool to identify patients who may benefit from Collaborative Care Management, including those who may be missed by PHQ-9 alone.</p>
+    </div>
+
+    <div class="grid">
+      <main>
+        <section class="card">
+          <h2>1. PHQ-9 Depression Screening</h2>
+          <div class="sub">Over the last 2 weeks, how often has the patient been bothered by the following problems?</div>
+          <div id="phq9"></div>
+        </section>
+
+        <section class="card">
+          <h2>2. Anxiety Overlay</h2>
+          <div class="sub">Captures anxiety symptoms that may drive utilization but are not fully reflected in PHQ-9 scoring.</div>
+          <div class="question">
+            <div class="question-title">Feeling nervous, anxious, on edge, or unable to control worry</div>
+            <div class="options">
+              <label class="option"><input type="radio" name="gad_lite" value="0" checked>Not at all</label>
+              <label class="option"><input type="radio" name="gad_lite" value="1">Several days</label>
+              <label class="option"><input type="radio" name="gad_lite" value="2">More than half the days</label>
+              <label class="option"><input type="radio" name="gad_lite" value="3">Nearly every day</label>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>3. Medical & Utilization Risk</h2>
+          <div class="sub">Check all that apply. Each item adds 2 points.</div>
+          <div class="checkbox-grid score-checks" data-points="2">
+            <label class="option"><input type="checkbox" value="2">Two or more chronic conditions</label>
+            <label class="option"><input type="checkbox" value="2">Two or more ER visits in last 6–12 months</label>
+            <label class="option"><input type="checkbox" value="2">One or more hospitalizations in last 6–12 months</label>
+            <label class="option"><input type="checkbox" value="2">Chronic pain condition</label>
+            <label class="option"><input type="checkbox" value="2">Frequent somatic complaints without clear etiology</label>
+            <label class="option"><input type="checkbox" value="2">Poorly controlled chronic disease despite treatment plan</label>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>4. Behavioral Health Complexity</h2>
+          <div class="sub">Check all that apply. Each item adds 2 points.</div>
+          <div class="checkbox-grid score-checks" data-points="2">
+            <label class="option"><input type="checkbox" value="2">Prior mental health diagnosis</label>
+            <label class="option"><input type="checkbox" value="2">Currently on psychotropic medication</label>
+            <label class="option"><input type="checkbox" value="2">Medication adherence concerns</label>
+            <label class="option"><input type="checkbox" value="2">Substance use concerns</label>
+            <label class="option"><input type="checkbox" value="2">Sleep disturbance affecting function</label>
+            <label class="option"><input type="checkbox" value="2">Prior therapy or psychiatry engagement but currently not connected</label>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>5. Social & Functional Risk</h2>
+          <div class="sub">Check all that apply. Each item adds 2 points.</div>
+          <div class="checkbox-grid score-checks" data-points="2">
+            <label class="option"><input type="checkbox" value="2">Lives alone or limited support system</label>
+            <label class="option"><input type="checkbox" value="2">Transportation barriers</label>
+            <label class="option"><input type="checkbox" value="2">Financial stress or medication affordability concerns</label>
+            <label class="option"><input type="checkbox" value="2">Recent major life stressor, grief, caregiving burden, or trauma</label>
+            <label class="option"><input type="checkbox" value="2">Difficulty managing daily responsibilities</label>
+            <label class="option"><input type="checkbox" value="2">Food, housing, or safety insecurity</label>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>6. PCP Clinical Concern</h2>
+          <div class="sub">Captures clinician concern that may not be reflected in structured screening alone.</div>
+          <div class="question">
+            <div class="question-title">Would this patient benefit from additional behavioral health support to improve overall health outcomes?</div>
+            <div class="options">
+              <label class="option"><input type="radio" name="pcp_concern" value="0" checked>No</label>
+              <label class="option"><input type="radio" name="pcp_concern" value="1">Maybe</label>
+              <label class="option"><input type="radio" name="pcp_concern" value="3">Yes</label>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <aside class="sticky">
+        <div class="score-box">
+          <div class="score-top">
+            <h2>Screening Result</h2>
+          </div>
+          <div class="score-body">
+            <div class="small-row"><span>PHQ-9 Score</span><strong id="phqScore">0</strong></div>
+            <div class="small-row"><span>Anxiety Score</span><strong id="gadScore">0</strong></div>
+            <div class="small-row"><span>Additional Risk Score</span><strong id="riskScore">0</strong></div>
+            <div class="small-row"><span>Total Composite Score</span><strong id="totalScoreSmall">0</strong></div>
+            <div class="big-score" id="bigScore">0</div>
+            <div id="tier" class="tier green">Routine PCP Management</div>
+            <div id="recommendation" class="recommendation">Continue routine management and re-screen in 3–6 months, or sooner if clinical concern increases.</div>
+            <div id="flags" class="flags"></div>
+            <button class="btn-primary" onclick="window.print()">Print / Save as PDF</button>
+            <button class="btn-secondary" onclick="resetTool()">Reset Tool</button>
+            <div class="note">For screening and care coordination support only. This tool does not replace clinical judgment or emergency/crisis protocols.</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="footer-note">OptiMed Behavioral Health | CoCM Smart Screening Tool</div>
+  </div>
+
+  <script>
+    const phqQuestions = [
+      'Little interest or pleasure in doing things',
+      'Feeling down, depressed, or hopeless',
+      'Trouble falling or staying asleep, or sleeping too much',
+      'Feeling tired or having little energy',
+      'Poor appetite or overeating',
+      'Feeling bad about yourself — or that you are a failure or have let yourself or your family down',
+      'Trouble concentrating on things, such as reading or watching TV',
+      'Moving or speaking so slowly that others could have noticed, or being so fidgety/restless that you move around more than usual',
+      'Thoughts that you would be better off dead or of hurting yourself in some way'
+    ];
+
+    const options = [
+      { label: 'Not at all', value: 0 },
+      { label: 'Several days', value: 1 },
+      { label: 'More than half the days', value: 2 },
+      { label: 'Nearly every day', value: 3 }
+    ];
+
+    function buildPHQ() {
+      const container = document.getElementById('phq9');
+      phqQuestions.forEach((q, idx) => {
+        const div = document.createElement('div');
+        div.className = 'question';
+        div.innerHTML = `<div class="question-title">${idx + 1}. ${q}</div>`;
+        const optDiv = document.createElement('div');
+        optDiv.className = 'options';
+        options.forEach(opt => {
+          const checked = opt.value === 0 ? 'checked' : '';
+          optDiv.innerHTML += `<label class="option"><input type="radio" name="phq_${idx}" value="${opt.value}" ${checked}>${opt.label}</label>`;
+        });
+        div.appendChild(optDiv);
+        container.appendChild(div);
+      });
+    }
+
+    function getRadioValue(name) {
+      const selected = document.querySelector(`input[name="${name}"]:checked`);
+      return selected ? parseInt(selected.value, 10) : 0;
+    }
+
+    function calculate() {
+      let phq = 0;
+      for (let i = 0; i < 9; i++) phq += getRadioValue(`phq_${i}`);
+      const suicidalFlag = getRadioValue('phq_8') > 0;
+      const gad = getRadioValue('gad_lite');
+      const pcp = getRadioValue('pcp_concern');
+      let checkboxRisk = 0;
+      document.querySelectorAll('.score-checks input[type="checkbox"]:checked').forEach(cb => {
+        checkboxRisk += parseInt(cb.value, 10);
+      });
+      const risk = checkboxRisk + pcp;
+      const total = phq + gad + risk;
+
+      document.getElementById('phqScore').textContent = phq;
+      document.getElementById('gadScore').textContent = gad;
+      document.getElementById('riskScore').textContent = risk;
+      document.getElementById('totalScoreSmall').textContent = total;
+      document.getElementById('bigScore').textContent = total;
+
+      let tierText, recText, tierClass;
+      const autoCoCM = phq >= 10 || total >= 12 || (phq >= 5 && risk >= 4);
+      const highPriority = suicidalFlag || phq >= 15 || total >= 18;
+
+      if (suicidalFlag) {
+        tierText = 'Urgent Safety Review Required';
+        tierClass = 'red';
+        recText = 'Positive response to PHQ-9 item 9. Follow established safety/crisis protocol immediately. CoCM may be appropriate after safety assessment and stabilization, but urgent clinical review takes priority.';
+      } else if (highPriority) {
+        tierText = 'High-Priority Behavioral Health Support';
+        tierClass = 'red';
+        recText = 'Prioritize outreach. Recommend CoCM enrollment and consider psychiatric case review or direct psychiatry referral based on acuity, medication complexity, and clinical judgment.';
+      } else if (autoCoCM) {
+        tierText = 'Strong CoCM Candidate';
+        tierClass = 'blue';
+        recText = 'Recommend CoCM enrollment. Patient has either moderate PHQ-9 symptoms, elevated composite risk, or enough non-PHQ risk factors to justify proactive behavioral health support.';
+      } else if (total >= 8 || (phq >= 5 && risk >= 2)) {
+        tierText = 'Consider CoCM / Care Manager Outreach';
+        tierClass = 'yellow';
+        recText = 'Consider CoCM enrollment or brief care manager outreach. Patient may be rising-risk even if PHQ-9 alone is not elevated.';
+      } else {
+        tierText = 'Routine PCP Management';
+        tierClass = 'green';
+        recText = 'Continue routine PCP management and re-screen in 3–6 months, or sooner if symptoms, utilization, or clinical concern increases.';
+      }
+
+      const tier = document.getElementById('tier');
+      tier.className = `tier ${tierClass}`;
+      tier.textContent = tierText;
+      document.getElementById('recommendation').textContent = recText;
+
+      const flags = [];
+      if (phq >= 10) flags.push('PHQ-9 ≥10: automatic CoCM eligibility flag.');
+      if (gad >= 2) flags.push('Anxiety symptoms present more than several days.');
+      if (risk >= 8) flags.push('Elevated non-PHQ risk: patient may be missed by depression-only screening.');
+      if (pcp === 3) flags.push('PCP concern is positive: clinical judgment supports additional BH support.');
+      document.getElementById('flags').innerHTML = flags.map(f => `<div class="flag-item">• ${f}</div>`).join('');
+    }
+
+    function resetTool() {
+      document.querySelectorAll('input[type="radio"][value="0"]').forEach(input => { input.checked = true; });
+      document.querySelectorAll('input[type="checkbox"]').forEach(input => { input.checked = false; });
+      calculate();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    buildPHQ();
+    document.addEventListener('change', calculate);
+    calculate();
+  </script>
+</body>
+</html>
